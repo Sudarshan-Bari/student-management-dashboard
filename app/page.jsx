@@ -72,29 +72,25 @@ export default function StudentDashboard() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCourse, setSelectedCourse] = useState("all")
 
-  useEffect(() => {
-    /**
-     * Async function to load courses from mock API
-     * Demonstrates proper async/await usage and error handling
-     */
-    const loadCourses = async () => {
-      try {
-        setLoading(true)
-        setError(null)
+  const loadCourses = async () => {
+    try {
+      setLoading(true)
+      setError(null)
 
-        // Simulate network delay to show loading state
-        await new Promise((resolve) => setTimeout(resolve, 800))
+      // Simulate network delay to show loading state
+      await new Promise((resolve) => setTimeout(resolve, 800))
 
-        const coursesData = await fetchCourses()
-        setCourses(coursesData)
-      } catch (err) {
-        setError("Failed to load courses. Please try again.")
-        console.error("Error loading courses:", err)
-      } finally {
-        setLoading(false)
-      }
+      const coursesData = await fetchCourses()
+      setCourses(coursesData)
+    } catch (err) {
+      setError("Failed to load courses. Please try again.")
+      console.error("Error loading courses:", err)
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     loadCourses()
   }, [])
 
@@ -175,12 +171,15 @@ export default function StudentDashboard() {
       <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center">
         <Card className="w-full max-w-md animate-slide-up">
           <CardHeader className="text-center">
-            <CardTitle className="text-destructive font-heading">Error</CardTitle>
+            <CardTitle className="text-destructive font-heading">Connection Error</CardTitle>
             <CardDescription>{error}</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button onClick={() => window.location.reload()} className="w-full">
-              Try Again
+          <CardContent className="space-y-3">
+            <Button onClick={loadCourses} className="w-full" disabled={loading}>
+              {loading ? "Retrying..." : "Retry Loading"}
+            </Button>
+            <Button onClick={() => window.location.reload()} variant="outline" className="w-full">
+              Refresh Page
             </Button>
           </CardContent>
         </Card>
