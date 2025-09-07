@@ -2,6 +2,8 @@
 
 A comprehensive React application demonstrating modern web development practices and key JavaScript concepts.
 
+👉 **Live Preview**: [Student Management Dashboard](https://student-management-dashboard-assignment.vercel.app/)
+
 ## 🎯 Project Overview
 
 This Student Management Dashboard is built as a candidate project assignment, showcasing:
