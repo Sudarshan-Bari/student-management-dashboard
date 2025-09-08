@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { X, User, Mail, BookOpen, ImageIcon } from "lucide-react"
+import { X, User, Mail, BookOpen, ImageIcon, Upload } from "lucide-react"
 
 /**
  * StudentForm Component Props:
@@ -39,6 +39,8 @@ function StudentForm({ courses, student, onSubmit, onCancel }) {
 
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [imagePreview, setImagePreview] = useState("")
+  const [uploadMode, setUploadMode] = useState("url") // "url" or "file"
 
   useEffect(() => {
     if (student) {
@@ -48,6 +50,9 @@ function StudentForm({ courses, student, onSubmit, onCancel }) {
         courseId: student.courseId?.toString() || "",
         profileImage: student.profileImage || "",
       })
+      if (student.profileImage) {
+        setImagePreview(student.profileImage)
+      }
     }
   }, [student])
 
@@ -94,10 +99,44 @@ function StudentForm({ courses, student, onSubmit, onCancel }) {
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
 
+    if (field === "profileImage" && uploadMode === "url") {
+      setImagePreview(value)
+    }
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }))
     }
+  }
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      setErrors((prev) => ({ ...prev, profileImage: "Please select a valid image file" }))
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, profileImage: "Image size must be less than 5MB" }))
+      return
+    }
+
+    // Read file and convert to data URL
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const dataUrl = event.target.result
+      setFormData((prev) => ({ ...prev, profileImage: dataUrl }))
+      setImagePreview(dataUrl)
+      // Clear any previous errors
+      if (errors.profileImage) {
+        setErrors((prev) => ({ ...prev, profileImage: "" }))
+      }
+    }
+    reader.readAsDataURL(file)
   }
 
   /**
@@ -211,19 +250,85 @@ function StudentForm({ courses, student, onSubmit, onCancel }) {
             {errors.courseId && <p className="text-sm text-destructive font-medium">{errors.courseId}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="profileImage" className="text-sm font-medium flex items-center gap-2">
+          <div className="space-y-3">
+            <Label className="text-sm font-medium flex items-center gap-2">
               <ImageIcon className="w-4 h-4" />
-              Profile Image URL (Optional)
+              Profile Image (Optional)
             </Label>
-            <Input
-              id="profileImage"
-              type="url"
-              value={formData.profileImage}
-              onChange={(e) => handleInputChange("profileImage", e.target.value)}
-              placeholder="https://example.com/image.jpg"
-              className="bg-background border-border/50 focus:border-primary"
-            />
+
+            <div className="flex gap-2 p-1 bg-muted rounded-lg">
+              <Button
+                type="button"
+                variant={uploadMode === "url" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setUploadMode("url")}
+                className="flex-1 h-8"
+              >
+                <ImageIcon className="w-3 h-3 mr-1" />
+                URL
+              </Button>
+              <Button
+                type="button"
+                variant={uploadMode === "file" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setUploadMode("file")}
+                className="flex-1 h-8"
+              >
+                <Upload className="w-3 h-3 mr-1" />
+                Upload
+              </Button>
+            </div>
+
+            {uploadMode === "url" ? (
+              <Input
+                id="profileImage"
+                type="url"
+                value={formData.profileImage}
+                onChange={(e) => handleInputChange("profileImage", e.target.value)}
+                placeholder="https://example.com/image.jpg"
+                className="bg-background border-border/50 focus:border-primary"
+              />
+            ) : (
+              <div className="space-y-2">
+                <Input
+                  id="profileImageFile"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="bg-background border-border/50 focus:border-primary file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                />
+                <p className="text-xs text-muted-foreground">Supported formats: JPG, PNG, GIF. Max size: 5MB</p>
+              </div>
+            )}
+
+            {imagePreview && (
+              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
+                <img
+                  src={imagePreview || "/placeholder.svg"}
+                  alt="Profile preview"
+                  className="w-12 h-12 rounded-full object-cover border-2 border-border"
+                  onError={() => setImagePreview("")}
+                />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Preview</p>
+                  <p className="text-xs text-muted-foreground">{uploadMode === "url" ? "From URL" : "Uploaded file"}</p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setImagePreview("")
+                    setFormData((prev) => ({ ...prev, profileImage: "" }))
+                  }}
+                  className="h-8 w-8 p-0"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+
+            {errors.profileImage && <p className="text-sm text-destructive font-medium">{errors.profileImage}</p>}
           </div>
 
           <div className="flex space-x-3 pt-4">

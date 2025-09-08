@@ -41,26 +41,27 @@ export default function StudentDashboard() {
   const [students, setStudents] = useState([
     {
       id: "1",
-      name: "Sarah Johnson",
-      email: "sarah.johnson@email.com",
+      name: "Rajesh Patil",
+      email: "rajesh.patil@gmail.com",
       courseId: 1,
-      profileImage: "/professional-woman-diverse.png",
-      createdAt: new Date("2024-01-15"),
+      profileImage: "/professional-man.png",
+      createdAt: new Date("2025-01-15"),
     },
     {
       id: "2",
-      name: "Michael Chen",
-      email: "michael.chen@email.com",
+      name: "Om Patel",
+      email: "om.patel@gmail.com",
       courseId: 2,
       profileImage: "/professional-man.png",
-      createdAt: new Date("2024-02-20"),
+      createdAt: new Date("2025-02-20"),
     },
     {
       id: "3",
-      name: "Emily Rodriguez",
-      email: "emily.rodriguez@email.com",
+      name: "Ansh Bari",
+      email: "ansh.bari@gmail.com",
       courseId: 1,
-      createdAt: new Date("2024-03-10"),
+      profileImage: "/professional-man.png",
+      createdAt: new Date("2025-03-10"),
     },
   ])
 
